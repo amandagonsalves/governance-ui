@@ -51,8 +51,8 @@ const ProposalFilter = ({ filters, setFilters }) => {
             className={`default-transition font-normal pl-3 pr-2 py-2.5 ring-1 ring-fgd-3 rounded-md text-fgd-1 text-sm hover:bg-bkg-3 focus:outline-none`}
           >
             {filters.length > 0 ? (
-              <div className="absolute -top-3 -right-1.5 z-20">
-                <StyledAlertCount className="w-4 h-4 bg-red relative inline-flex rounded-full flex items-center justify-center">
+              <div className="absolute -top-3 -right-1.5 z-10">
+                <StyledAlertCount className="w-4 h-4 bg-red relative rounded-full flex items-center justify-center">
                   {filters.length}
                 </StyledAlertCount>
               </div>
@@ -67,7 +67,7 @@ const ProposalFilter = ({ filters, setFilters }) => {
             </div>
           </Disclosure.Button>
           <Disclosure.Panel
-            className={`bg-bkg-1 border border-fgd-4 mt-2 p-4 absolute right-0 w-56 z-20 rounded-md text-xs`}
+            className={`bg-bkg-1 border border-fgd-4 mt-2 p-4 absolute right-0 w-56 z-10 rounded-md text-xs`}
           >
             <div>
               <div className="flex items-center justify-between pb-2">
