@@ -6,11 +6,12 @@ import MembersItems from './MembersItems'
 import useMembers from './useMembers'
 import MemberOverview from './MemberOverview'
 import { PlusIcon } from '@heroicons/react/outline'
-import AddMember from './AddMember'
+import AddMember from './AddMemberForm'
 import useGovernanceAssets from '@hooks/useGovernanceAssets'
 import Tooltip from '@components/Tooltip'
 import useWalletStore from 'stores/useWalletStore'
 import Modal from '@components/Modal'
+import AddMemberForm from './AddMemberForm'
 
 const MembersCompactWrapper = () => {
   const {
@@ -88,18 +89,18 @@ const MembersCompactWrapper = () => {
 
             {openAddMemberModal && (
               <Modal
+                background="bg-bkg-1 md:mt-0 mt-8"
+                sizeClassName="sm:max-w-3xl"
                 onClose={() => setOpenAddMemberModal(false)}
                 isOpen={openAddMemberModal}
               >
-                <AddMember />
+                <AddMemberForm close={() => setOpenAddMemberModal(false)} />
               </Modal>
             )}
           </>
         )
       case ViewState.MemberOverview:
         return <MemberOverview></MemberOverview>
-      case ViewState.AddMember:
-        return <AddMember></AddMember>
     }
   }
   useEffect(() => {
