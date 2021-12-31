@@ -6,7 +6,6 @@ import MembersItems from './MembersItems'
 import useMembers from './useMembers'
 import MemberOverview from './MemberOverview'
 import { PlusIcon } from '@heroicons/react/outline'
-import AddMember from './AddMemberForm'
 import useGovernanceAssets from '@hooks/useGovernanceAssets'
 import Tooltip from '@components/Tooltip'
 import useWalletStore from 'stores/useWalletStore'
@@ -68,21 +67,20 @@ const MembersCompactWrapper = () => {
                   addNewMemberTooltip ? 'opacity-60 pointer-events-none' : ''
                 }`}
                   >
-                    <div
-                      className="bg-[rgba(255,255,255,0.06)] h-6 w-6 flex 
-                font-bold items-center justify-center 
-                rounded-full text-fgd-3"
-                    >
+                    <div className="bg-[rgba(255,255,255,0.06)] h-6 w-6 flex font-bold items-center justify-center rounded-full text-fgd-3">
                       <PlusIcon />
                     </div>
                   </div>
                 </Tooltip>
               )}
             </h3>
+
             <div className="bg-bkg-1 mb-3 px-4 py-2 rounded-md w-full">
               <p className="text-fgd-3 text-xs">Total votes cast</p>
+
               <h3 className="mb-0">{totalVotesCast}</h3>
             </div>
+
             <div style={{ maxHeight: '350px' }}>
               <MembersItems />
             </div>
@@ -100,12 +98,14 @@ const MembersCompactWrapper = () => {
           </>
         )
       case ViewState.MemberOverview:
-        return <MemberOverview></MemberOverview>
+        return <MemberOverview />
     }
   }
+
   useEffect(() => {
     resetCompactViewState()
   }, [symbol])
+
   return (
     <div className="bg-bkg-2 p-4 md:p-6 rounded-lg">{getCurrentView()}</div>
   )

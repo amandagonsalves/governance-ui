@@ -36,7 +36,6 @@ const AddMemberForm = ({ close }) => {
   const [showOptions, setShowOptions] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [formErrors, setFormErrors] = useState({})
-  const [lastStep, setLastStep] = useState(false)
 
   const router = useRouter()
   const connection = useWalletStore((s) => s.connection)
@@ -86,11 +85,6 @@ const AddMemberForm = ({ close }) => {
     : !councilMint?.supply.isZero()
     ? realm?.info.config.councilMint
     : undefined
-
-  const proposalMint =
-    canChooseWhoVote && voteByCouncil
-      ? realm?.info.config.councilMint
-      : defaultProposalMint
 
   const setAmount = (event) => {
     const value = event.target.value
