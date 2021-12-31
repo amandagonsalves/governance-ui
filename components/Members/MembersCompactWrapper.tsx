@@ -1,5 +1,5 @@
 import useRealm from '@hooks/useRealm'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import useMembersListStore from 'stores/useMembersStore'
 import { ViewState } from './types'
 import MembersItems from './MembersItems'
@@ -10,6 +10,7 @@ import AddMember from './AddMember'
 import useGovernanceAssets from '@hooks/useGovernanceAssets'
 import Tooltip from '@components/Tooltip'
 import useWalletStore from 'stores/useWalletStore'
+import Modal from '@components/Modal'
 
 const MembersCompactWrapper = () => {
   const {
@@ -21,7 +22,7 @@ const MembersCompactWrapper = () => {
   const { members } = useMembers()
   const connected = useWalletStore((s) => s.connected)
   const membersCount = members.length
-  const { setCurrentCompactView, resetCompactViewState } = useMembersListStore()
+  const { resetCompactViewState } = useMembersListStore()
   const {
     canUseMintInstruction,
     canMintRealmCouncilToken,
@@ -30,9 +31,9 @@ const MembersCompactWrapper = () => {
   const totalVotesCast = members.reduce((prev, current) => {
     return prev + current.votesCasted
   }, 0)
-  const goToAddMemberView = () => {
-    setCurrentCompactView(ViewState.AddMember)
-  }
+
+  const [openAddMemberModal, setOpenAddMemberModal] = useState(false)
+
   const addNewMemberTooltip = !connected
     ? 'Connect your wallet to add new council member'
     : !canMintRealmCouncilToken()
@@ -58,7 +59,7 @@ const MembersCompactWrapper = () => {
                   content={addNewMemberTooltip}
                 >
                   <div
-                    onClick={goToAddMemberView}
+                    onClick={() => setOpenAddMemberModal(!openAddMemberModal)}
                     className={`bg-bkg-2 default-transition 
                 flex flex-col items-center justify-center
                 rounded-lg hover:bg-bkg-3 ml-auto 
@@ -82,8 +83,17 @@ const MembersCompactWrapper = () => {
               <h3 className="mb-0">{totalVotesCast}</h3>
             </div>
             <div style={{ maxHeight: '350px' }}>
-              <MembersItems></MembersItems>
+              <MembersItems />
             </div>
+
+            {openAddMemberModal && (
+              <Modal
+                onClose={() => setOpenAddMemberModal(false)}
+                isOpen={openAddMemberModal}
+              >
+                <AddMember />
+              </Modal>
+            )}
           </>
         )
       case ViewState.MemberOverview:
