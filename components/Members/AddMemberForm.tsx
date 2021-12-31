@@ -80,12 +80,6 @@ const AddMemberForm = ({ close }) => {
     6
   )}`
 
-  const defaultProposalMint = !mint?.supply.isZero()
-    ? realm?.info.communityMint
-    : !councilMint?.supply.isZero()
-    ? realm?.info.config.councilMint
-    : undefined
-
   const setAmount = (event) => {
     const value = event.target.value
 
