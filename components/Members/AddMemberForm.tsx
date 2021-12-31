@@ -312,7 +312,7 @@ const AddMemberForm = ({ close }) => {
             className="p-4 w-full bg-bkg-3 border border-bkg-3 default-transition text-sm text-fgd-1 rounded-md focus:border-bkg-3 focus:outline-none"
             wrapperClassName="mb-6"
             label="Description"
-            placeholder="Describe your proposal (optional)"
+            placeholder="Description of your proposal (optional)"
             value={form.description}
             type="text"
             onChange={(event) =>
