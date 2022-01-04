@@ -20,7 +20,7 @@ import { notify } from 'utils/notifications'
 import useQueryContext from 'hooks/useQueryContext'
 import { getMintInstruction } from 'utils/instructionTools'
 import AddMemberIcon from '@components/AddMemberIcon'
-import { ellipsis } from '@utils/helpers'
+import { ellipsis, format } from '@utils/helpers'
 import {
   ArrowCircleDownIcon,
   ArrowCircleUpIcon,
@@ -74,11 +74,11 @@ const AddMemberForm = ({ close }) => {
 
   const currentPrecision = precision(mintMinAmount)
 
-  const proposalTitle = `Add council member ${ellipsis(
-    String(form.destinationAccount),
-    4,
-    6
-  )}`
+  const proposalTitle = `Add council member ${
+    form.destinationAccount.length < 24
+      ? format(form.destinationAccount, 24)
+      : ellipsis(String(form.destinationAccount), 4, 6)
+  }`
 
   const setAmount = (event) => {
     const value = event.target.value
@@ -272,7 +272,7 @@ const AddMemberForm = ({ close }) => {
             wrapperClassName="mb-6"
             label="Title of your proposal"
             placeholder="Title of your proposal"
-            value={form.title}
+            value={form.title ? form.title : proposalTitle}
             type="text"
             onChange={(event) =>
               handleSetForm({
