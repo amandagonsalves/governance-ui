@@ -74,11 +74,7 @@ const AddMemberForm = ({ close }) => {
 
   const currentPrecision = precision(mintMinAmount)
 
-  const proposalTitle = `Add council member ${
-    form.destinationAccount.length < 24
-      ? format(form.destinationAccount, 24)
-      : ellipsis(String(form.destinationAccount), 4, 6)
-  }`
+  const proposalTitle = `Add council member ${form.destinationAccount}`
 
   const setAmount = (event) => {
     const value = event.target.value
