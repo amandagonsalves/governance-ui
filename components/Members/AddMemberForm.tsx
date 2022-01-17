@@ -10,16 +10,19 @@ import { getMintSchema } from 'utils/validations'
 import { useEffect, useState } from 'react'
 import { MintForm, UiInstruction } from 'utils/uiTypes/proposalCreationTypes'
 import useGovernanceAssets from 'hooks/useGovernanceAssets'
-import { getInstructionDataFromBase64 } from 'models/serialisation'
-import { RpcContext } from 'models/core/api'
-import { Governance } from 'models/accounts'
-import { ParsedAccount } from 'models/core/accounts'
+import {
+  getInstructionDataFromBase64,
+  RpcContext,
+  Governance,
+  ProgramAccount,
+} from '@solana/spl-governance'
 import { useRouter } from 'next/router'
 import { createProposal } from 'actions/createProposal'
 import { notify } from 'utils/notifications'
 import useQueryContext from 'hooks/useQueryContext'
 import { getMintInstruction } from 'utils/instructionTools'
 import AddMemberIcon from '@components/AddMemberIcon'
+import { getProgramVersionForRealm } from '@models/registry/api'
 import {
   ArrowCircleDownIcon,
   ArrowCircleUpIcon,
@@ -121,7 +124,7 @@ const AddMemberForm = ({ close }) => {
 
     const instruction: UiInstruction = await getInstruction()
 
-    if (instruction.isValid) {
+    if (instruction.isValid && wallet && realmInfo) {
       const governance = form.mintAccount?.governance
 
       let proposalAddress: PublicKey | null = null
@@ -133,8 +136,8 @@ const AddMemberForm = ({ close }) => {
       }
 
       const rpcContext = new RpcContext(
-        new PublicKey(realm.account.owner.toString()),
-        realmInfo?.programVersion,
+        new PublicKey(realm.owner.toString()),
+        getProgramVersionForRealm(realmInfo),
         wallet,
         connection.current,
         connection.endpoint
@@ -144,28 +147,28 @@ const AddMemberForm = ({ close }) => {
         data: instruction.serializedInstruction
           ? getInstructionDataFromBase64(instruction.serializedInstruction)
           : null,
-        holdUpTime: governance?.info?.config.minInstructionHoldUpTime,
+        holdUpTime: governance?.account?.config.minInstructionHoldUpTime,
         prerequisiteInstructions: instruction.prerequisiteInstructions || [],
       }
 
       try {
         const selectedGovernance = (await fetchRealmGovernance(
           governance?.pubkey
-        )) as ParsedAccount<Governance>
+        )) as ProgramAccount<Governance>
 
         const ownTokenRecord = ownVoterWeight.getTokenRecordToCreateProposal(
-          governance!.info.config
+          governance!.account.config
         )
 
         const defaultProposalMint = !mint?.supply.isZero()
-          ? realm.info.communityMint
+          ? realm.account.communityMint
           : !councilMint?.supply.isZero()
-          ? realm.info.config.councilMint
+          ? realm.account.config.councilMint
           : undefined
 
         const proposalMint =
           canChooseWhoVote && voteByCouncil
-            ? realm.info.config.councilMint
+            ? realm.account.config.councilMint
             : defaultProposalMint
 
         if (!proposalMint) {
@@ -182,7 +185,7 @@ const AddMemberForm = ({ close }) => {
           form.title ? form.title : proposalTitle,
           form.description ? form.description : '',
           proposalMint,
-          selectedGovernance?.info?.proposalCount,
+          selectedGovernance?.account?.proposalCount,
           [instructionData],
           false
         )
@@ -197,6 +200,8 @@ const AddMemberForm = ({ close }) => {
           type: 'error',
           message: `${error}`,
         })
+
+        close()
       }
     }
 
@@ -210,8 +215,8 @@ const AddMemberForm = ({ close }) => {
       handleSetForm({
         value: response.find(
           (x) =>
-            x.governance?.info.governedAccount.toBase58() ===
-            realm?.info.config.councilMint?.toBase58()
+            x.governance?.account.governedAccount.toBase58() ===
+            realm?.account.config.councilMint?.toBase58()
         ),
         propertyName: 'mintAccount',
       })
@@ -282,6 +287,23 @@ const AddMemberForm = ({ close }) => {
             useDefaultStyle={false}
             className="p-4 w-full bg-bkg-3 border border-bkg-3 default-transition text-sm text-fgd-1 rounded-md focus:border-bkg-3 focus:outline-none"
             wrapperClassName="mb-6"
+            label="Description"
+            placeholder="Description of your proposal (optional)"
+            value={form.description}
+            type="text"
+            onChange={(event) =>
+              handleSetForm({
+                value: event.target.value,
+                propertyName: 'description',
+              })
+            }
+          />
+
+          <Input
+            noMaxWidth
+            useDefaultStyle={false}
+            className="p-4 w-full bg-bkg-3 border border-bkg-3 default-transition text-sm text-fgd-1 rounded-md focus:border-bkg-3 focus:outline-none"
+            wrapperClassName="mb-6"
             min={mintMinAmount}
             label="Voter weight"
             value={form.amount}
@@ -300,23 +322,6 @@ const AddMemberForm = ({ close }) => {
               }}
             />
           )}
-
-          <Input
-            noMaxWidth
-            useDefaultStyle={false}
-            className="p-4 w-full bg-bkg-3 border border-bkg-3 default-transition text-sm text-fgd-1 rounded-md focus:border-bkg-3 focus:outline-none"
-            wrapperClassName="mb-6"
-            label="Description"
-            placeholder="Description of your proposal (optional)"
-            value={form.description}
-            type="text"
-            onChange={(event) =>
-              handleSetForm({
-                value: event.target.value,
-                propertyName: 'description',
-              })
-            }
-          />
         </>
       )}
 
@@ -330,10 +335,9 @@ const AddMemberForm = ({ close }) => {
         </SecondaryButton>
 
         <Button
-          disabled={!form.destinationAccount}
+          disabled={!form.destinationAccount || isLoading}
           className="w-44 flex justify-center items-center"
           onClick={() => handlePropose()}
-          isLoading={isLoading}
         >
           Add member
         </Button>

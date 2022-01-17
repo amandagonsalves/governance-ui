@@ -19,9 +19,9 @@ const MembersCompactWrapper = () => {
     toManyCouncilOutstandingProposalsForUse,
     toManyCommunityOutstandingProposalsForUser,
   } = useRealm()
-  const { members } = useMembers()
+  const { members, activeMembers } = useMembers()
   const connected = useWalletStore((s) => s.connected)
-  const membersCount = members.length
+  const activeMembersCount = activeMembers.length
   const { resetCompactViewState } = useMembersListStore()
   const {
     canUseMintInstruction,
@@ -52,7 +52,7 @@ const MembersCompactWrapper = () => {
         return (
           <>
             <h3 className="mb-4 flex items-center">
-              Members ({membersCount})
+              Members ({activeMembersCount})
               {councilMint && (
                 <Tooltip
                   contentClassName="ml-auto"
@@ -82,7 +82,7 @@ const MembersCompactWrapper = () => {
             </div>
 
             <div style={{ maxHeight: '350px' }}>
-              <MembersItems />
+              <MembersItems activeMembers={activeMembers} />
             </div>
 
             {openAddMemberModal && (
