@@ -101,7 +101,7 @@ export const validateDestinationAccAddress = async (
 }
 
 export const validateDestinationAccAddressWithMint = async (
-  connection,
+  connection: ConnectionContext,
   val: any,
   mintPubKey: PublicKey
 ) => {
@@ -121,7 +121,7 @@ export const validateDestinationAccAddressWithMint = async (
 }
 
 export const validateBuffer = async (
-  connection,
+  connection: ConnectionContext,
   val: string,
   governedAccount?: PublicKey
 ) => {
@@ -171,6 +171,10 @@ export const getTokenTransferSchema = ({ form, connection }) => {
         'amount',
         'Transfer amount must be less than the source account available amount',
         async function (val: number) {
+          const isNft = form.governedTokenAccount.isNft
+          if (isNft) {
+            return true
+          }
           if (val && !form.governedTokenAccount) {
             return this.createError({
               message: `Please select source account to validate the amount`,
@@ -256,7 +260,7 @@ export const getMintSchema = ({ form, connection }) => {
             form.mintAccount?.mintInfo.decimals
           )
           return !!(
-            form.mintAccount.governance?.info.governedAccount && mintValue
+            form.mintAccount.governance?.account.governedAccount && mintValue
           )
         }
         return this.createError({
@@ -275,7 +279,7 @@ export const getMintSchema = ({ form, connection }) => {
                 await validateDestinationAccAddressWithMint(
                   connection,
                   val,
-                  form.mintAccount.governance.info.governedAccount
+                  form.mintAccount.governance.account.governedAccount
                 )
               } else {
                 return this.createError({
